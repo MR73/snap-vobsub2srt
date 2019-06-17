@@ -4,9 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 name: vobsub2srt
-# FIXME: with core18 (libtesseract4) --blacklist doesn't work,
-# so use core (libtesseract3) for now
-base: core
+base: core18
 confinement: strict
 description: |
   VobSub2SRT is a simple command line program to convert .idx / .sub subtitles
@@ -18,6 +16,12 @@ summary: Converts VobSub subtitles (.idx/.srt format) into .srt subtitles
 version: "1.0~git0ba6e25"
 
 parts:
+  patches:
+    plugin: dump
+    prime:
+      - -*
+    source: patches
+
   vobsub2srt:
     plugin: autotools
     source: https://github.com/ruediger/VobSub2SRT.git
@@ -30,14 +34,20 @@ parts:
       - libtiff5-dev
       - pkg-config
     stage-packages:
-      - libtesseract3
+      - libtesseract4
       - tesseract-ocr-eng
+    override-pull: |
+      snapcraftctl pull
+      git apply $SNAPCRAFT_STAGE/Fix-compile-with-gcc7-and-tesseract-4.patch
+    after:
+      - patches
 
 apps:
   with-basic-blacklist:
+    # FIXME: --blacklist doesn't appear to work with libtesseract4 ?
     command: usr/local/bin/vobsub2srt --blacklist "|\/_~<>"
     environment:
-      TESSDATA_PREFIX: $SNAP/usr/share/tesseract-ocr/tessdata
+      TESSDATA_PREFIX: $SNAP/usr/share/tesseract-ocr/4.00/tessdata
     plugs:
       - home
       - removable-media
@@ -45,7 +55,7 @@ apps:
   vobsub2srt:
     command: usr/local/bin/vobsub2srt
     environment:
-      TESSDATA_PREFIX: $SNAP/usr/share/tesseract-ocr/tessdata
+      TESSDATA_PREFIX: $SNAP/usr/share/tesseract-ocr/4.00/tessdata
     plugs:
       - home
       - removable-media
