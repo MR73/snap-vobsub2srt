@@ -1,0 +1,51 @@
+# Copyright 2019 Andrew Hayzen <ahayzen@gmail.com>
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+name: vobsub2srt
+# FIXME: with core18 (libtesseract4) --blacklist doesn't work,
+# so use core (libtesseract3) for now
+base: core
+confinement: strict
+description: |
+  VobSub2SRT is a simple command line program to convert .idx / .sub subtitles
+  into .srt text subtitles by using OCR. It is based on code from the MPlayer
+  project - a really really great movie player. Some minor parts are copied
+  from ffmpeg/avutil headers. Tesseract is used as OCR software.
+license: "GPL-2.0 AND GPL-3.0"  # mplayer part is GPL2+, the rest is GPL3+
+summary: Converts VobSub subtitles (.idx/.srt format) into .srt subtitles
+version: "1.0~git0ba6e25"
+
+parts:
+  vobsub2srt:
+    plugin: autotools
+    source: https://github.com/ruediger/VobSub2SRT.git
+    source-commit: 0ba6e25e078a040195d7295e860cc9064bef7c2c
+    source-type: git
+    build-packages:
+      - build-essential
+      - cmake
+      - libtesseract-dev
+      - libtiff5-dev
+      - pkg-config
+    stage-packages:
+      - libtesseract3
+      - tesseract-ocr-eng
+
+apps:
+  with-basic-blacklist:
+    command: usr/local/bin/vobsub2srt --blacklist "|\/_~<>"
+    environment:
+      TESSDATA_PREFIX: $SNAP/usr/share/tesseract-ocr/tessdata
+    plugs:
+      - home
+      - removable-media
+
+  vobsub2srt:
+    command: usr/local/bin/vobsub2srt
+    environment:
+      TESSDATA_PREFIX: $SNAP/usr/share/tesseract-ocr/tessdata
+    plugs:
+      - home
+      - removable-media
