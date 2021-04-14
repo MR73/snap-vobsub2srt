@@ -32,6 +32,9 @@ parts:
     stage-packages:
       - libtesseract3
       - tesseract-ocr-eng
+      - tesseract-ocr-fra
+      - tesseract-ocr-spa
+      - tesseract-ocr-deu
 
 apps:
   with-basic-blacklist:
